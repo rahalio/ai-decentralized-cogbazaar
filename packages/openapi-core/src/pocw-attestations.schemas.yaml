@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: PoCW Attestations schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    AttestationId:
+      type: string
+      pattern: '^pcw_[0-9A-HJKMNP-TV-Z]{26}$'
+
+    AttestationStatus:
+      type: string
+      enum: [pending, accepted, rejected, exportReady]
+
+    PoCWAttestation:
+      type: object
+      required:
+        - attestationId
+        - jobId
+        - providerParticipantId
+        - status
+        - submittedAt
+      properties:
+        attestationId:
+          $ref: '#/components/schemas/AttestationId'
+        jobId:
+          type: string
+        providerParticipantId:
+          type: string
+        status:
+          $ref: '#/components/schemas/AttestationStatus'
+        accepted:
+          type: boolean
+        proofPayload:
+          type: string
+        proofFormat:
+          type: string
+        rejectReason:
+          type: string
+        exportPackUrl:
+          type: string
+          description: Signed URL or path for audit export pack.
+        submittedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+
+    PoCWAttestationCreateRequest:
+      type: object
+      required:
+        - jobId
+        - providerParticipantId
+        - proofPayload
+      properties:
+        jobId:
+          type: string
+        providerParticipantId:
+          type: string
+        proofPayload:
+          type: string
+        proofFormat:
+          type: string
+
+    PoCWReviewRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+
+    PoCWAttestationListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoCWAttestation'
+        nextCursor:
+          type: string
+
+    PoCWAttestationResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PoCWAttestation'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    PoCWAttestationListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PoCWAttestationListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    PoCWExportPack:
+      type: object
+      required: [attestationId, packDigest, exportedAt]
+      properties:
+        attestationId:
+          $ref: '#/components/schemas/AttestationId'
+        packDigest:
+          type: string
+        exportPackUrl:
+          type: string
+        exportedAt:
+          type: string
+          format: date-time
+
+    PoCWExportPackResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PoCWExportPack'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

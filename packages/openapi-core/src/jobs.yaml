@@ -1,0 +1,297 @@
+openapi: 3.1.0
+info:
+  title: Jobs API
+  version: 0.1.0
+  description: |
+    Compose data + kernel + compute into cognitive jobs; match multi-provider bids;
+    drive lifecycle through PoCW settlement, dispute, and refund.
+  license:
+    name: Proprietary
+    url: https://cogbazaar.local/license
+  x-domain: job
+servers:
+  - url: https://api.cogbazaar.local
+security:
+  - apiKey: []
+tags:
+  - name: Jobs
+    description: Composed cognitive jobs
+paths:
+  /v1/jobs:
+    get:
+      operationId: listJobs
+      tags: [Jobs]
+      summary: List jobs
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: status
+          in: query
+          schema:
+            $ref: ./jobs.schemas.yaml#/components/schemas/JobStatus
+        - name: buyerParticipantId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Jobs page
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createJob
+      tags: [Jobs]
+      summary: Create draft job
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/JobCreateRequest
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/JobId
+    get:
+      operationId: getJob
+      tags: [Jobs]
+      summary: Get job
+      responses:
+        '200':
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    patch:
+      operationId: updateJob
+      tags: [Jobs]
+      summary: Update draft job
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/JobUpdateRequest
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/match:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/JobId
+    post:
+      operationId: matchJob
+      tags: [Jobs]
+      summary: Request multi-provider match
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/MatchJobRequest
+      responses:
+        '200':
+          description: Job with bids
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '422':
+          $ref: ./common/responses.yaml#/components/responses/UnprocessableEntity
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/accept-route:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/JobId
+    post:
+      operationId: acceptJobRoute
+      tags: [Jobs]
+      summary: Accept a provider bid set
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/AcceptRouteRequest
+      responses:
+        '200':
+          description: Route accepted
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/cancel:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/JobId
+    post:
+      operationId: cancelJob
+      tags: [Jobs]
+      summary: Cancel job
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/dispute:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/JobId
+    post:
+      operationId: disputeJob
+      tags: [Jobs]
+      summary: Open dispute (failed PoCW / settlement)
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/DisputeJobRequest
+      responses:
+        '200':
+          description: Disputed
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/refund:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/JobId
+    post:
+      operationId: refundJob
+      tags: [Jobs]
+      summary: Refund after dispute resolution
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      responses:
+        '200':
+          description: Refunded
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/JobResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

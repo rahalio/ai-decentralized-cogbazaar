@@ -1,0 +1,196 @@
+openapi: 3.1.0
+info:
+  title: PoCW Attestations API
+  version: 0.1.0
+  description: Proof-of-cognitive-work attestations — clearing event for settlement.
+  license:
+    name: Proprietary
+    url: https://cogbazaar.local/license
+  x-domain: pcw
+servers:
+  - url: https://api.cogbazaar.local
+security:
+  - apiKey: []
+tags:
+  - name: PoCWAttestations
+    description: Cognitive-work proofs
+paths:
+  /v1/pocw-attestations:
+    get:
+      operationId: listPoCWAttestations
+      tags: [PoCWAttestations]
+      summary: List attestations
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: jobId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: ./pocw-attestations.schemas.yaml#/components/schemas/AttestationStatus
+      responses:
+        '200':
+          description: Attestations page
+          content:
+            application/json:
+              schema:
+                $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWAttestationListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: submitPoCWAttestation
+      tags: [PoCWAttestations]
+      summary: Submit PoCW attestation
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWAttestationCreateRequest
+      responses:
+        '201':
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWAttestationResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/pocw-attestations/{attestationId}:
+    parameters:
+      - name: attestationId
+        in: path
+        required: true
+        schema:
+          $ref: ./pocw-attestations.schemas.yaml#/components/schemas/AttestationId
+    get:
+      operationId: getPoCWAttestation
+      tags: [PoCWAttestations]
+      summary: Get attestation
+      responses:
+        '200':
+          description: Attestation
+          content:
+            application/json:
+              schema:
+                $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWAttestationResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/pocw-attestations/{attestationId}/accept:
+    parameters:
+      - name: attestationId
+        in: path
+        required: true
+        schema:
+          $ref: ./pocw-attestations.schemas.yaml#/components/schemas/AttestationId
+    post:
+      operationId: acceptPoCWAttestation
+      tags: [PoCWAttestations]
+      summary: Accept PoCW (unlocks settlement)
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWReviewRequest
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWAttestationResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/pocw-attestations/{attestationId}/reject:
+    parameters:
+      - name: attestationId
+        in: path
+        required: true
+        schema:
+          $ref: ./pocw-attestations.schemas.yaml#/components/schemas/AttestationId
+    post:
+      operationId: rejectPoCWAttestation
+      tags: [PoCWAttestations]
+      summary: Reject PoCW (opens dispute path)
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWReviewRequest
+      responses:
+        '200':
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWAttestationResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/pocw-attestations/{attestationId}/export-pack:
+    parameters:
+      - name: attestationId
+        in: path
+        required: true
+        schema:
+          $ref: ./pocw-attestations.schemas.yaml#/components/schemas/AttestationId
+    post:
+      operationId: exportPoCWAttestationPack
+      tags: [PoCWAttestations]
+      summary: Export audit proof pack
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      responses:
+        '200':
+          description: Export metadata
+          content:
+            application/json:
+              schema:
+                $ref: ./pocw-attestations.schemas.yaml#/components/schemas/PoCWExportPackResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

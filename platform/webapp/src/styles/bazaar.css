@@ -1,0 +1,334 @@
+:root {
+  --color-bazaar-ink: #0f1419;
+  --color-bazaar-ink-2: #1a222c;
+  --color-bazaar-brass: #c4a35a;
+  --color-bazaar-brass-dim: #8a7340;
+  --color-bazaar-ledger: #e8dfc8;
+  --color-bazaar-seal: #b85c38;
+  --color-bazaar-muted: #8b95a1;
+  --color-bazaar-ok: #3d8b6e;
+  --color-bazaar-warn: #c47a3a;
+  --color-bazaar-panel: #151c24;
+  --color-bazaar-border: #2a3440;
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--color-bazaar-ink);
+  color: var(--color-bazaar-ledger);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: var(--color-bazaar-brass);
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--color-bazaar-ink-2);
+  border-right: 1px solid var(--color-bazaar-border);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wordmark {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-bazaar-brass);
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wordmark-seal {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-bazaar-brass);
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.7rem;
+}
+
+.role-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.role-switch label {
+  font-size: 0.7rem;
+  color: var(--color-bazaar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.role-switch select {
+  background: var(--color-bazaar-panel);
+  color: var(--color-bazaar-ledger);
+  border: 1px solid var(--color-bazaar-border);
+  border-radius: 6px;
+  padding: 0.45rem 0.55rem;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav a {
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  color: var(--color-bazaar-ledger);
+}
+
+.nav a.active,
+.nav a:hover {
+  background: var(--color-bazaar-panel);
+  color: var(--color-bazaar-brass);
+}
+
+.main {
+  padding: 1.5rem 1.75rem 2.5rem;
+}
+
+.page-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.45rem;
+}
+
+.page-sub {
+  margin: 0 0 1.25rem;
+  color: var(--color-bazaar-muted);
+}
+
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.kpi {
+  background: var(--color-bazaar-panel);
+  border: 1px solid var(--color-bazaar-border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+
+.kpi .label {
+  font-size: 0.72rem;
+  color: var(--color-bazaar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.kpi .value {
+  margin-top: 0.35rem;
+  font-size: 1.35rem;
+  color: var(--color-bazaar-brass);
+  font-family: var(--font-mono);
+}
+
+.panel {
+  background: var(--color-bazaar-panel);
+  border: 1px solid var(--color-bazaar-border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.aisle-switch {
+  display: inline-flex;
+  gap: 0.35rem;
+  background: var(--color-bazaar-ink-2);
+  padding: 0.25rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.aisle-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--color-bazaar-muted);
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+}
+
+.aisle-switch button.active {
+  background: var(--color-bazaar-brass);
+  color: var(--color-bazaar-ink);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid var(--color-bazaar-border);
+}
+
+.table th {
+  color: var(--color-bazaar-muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn {
+  border: 1px solid var(--color-bazaar-brass-dim);
+  background: transparent;
+  color: var(--color-bazaar-brass);
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem;
+}
+
+.btn.primary {
+  background: var(--color-bazaar-brass);
+  color: var(--color-bazaar-ink);
+  border-color: var(--color-bazaar-brass);
+}
+
+.btn.danger {
+  border-color: var(--color-bazaar-seal);
+  color: var(--color-bazaar-seal);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid var(--color-bazaar-border);
+}
+
+.badge.ok {
+  color: var(--color-bazaar-ok);
+  border-color: var(--color-bazaar-ok);
+}
+
+.badge.warn {
+  color: var(--color-bazaar-warn);
+  border-color: var(--color-bazaar-warn);
+}
+
+.badge.seal {
+  color: var(--color-bazaar-seal);
+  border-color: var(--color-bazaar-seal);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-bazaar-muted);
+  margin-bottom: 0.25rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  background: var(--color-bazaar-ink);
+  border: 1px solid var(--color-bazaar-border);
+  color: var(--color-bazaar-ledger);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+}
+
+.meter {
+  height: 8px;
+  background: var(--color-bazaar-ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter > span {
+  display: block;
+  height: 100%;
+  background: var(--color-bazaar-brass);
+}
+
+.split-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.split-bar > span {
+  display: block;
+  height: 100%;
+}
+
+.muted {
+  color: var(--color-bazaar-muted);
+}
+
+.error {
+  color: var(--color-bazaar-seal);
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+  .kpi-strip,
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}

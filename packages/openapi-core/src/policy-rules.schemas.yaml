@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: Policy Rules schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    RuleId:
+      type: string
+      pattern: '^pol_[0-9A-HJKMNP-TV-Z]{26}$'
+
+    PolicyRuleType:
+      type: string
+      enum: [dualUseBlock, agentSpendCap, licenceGate]
+
+    PolicyRuleStatus:
+      type: string
+      enum: [active, disabled]
+
+    PolicyRule:
+      type: object
+      required:
+        - ruleId
+        - ruleType
+        - status
+        - expression
+        - createdAt
+      properties:
+        ruleId:
+          $ref: '#/components/schemas/RuleId'
+        ruleType:
+          $ref: '#/components/schemas/PolicyRuleType'
+        status:
+          $ref: '#/components/schemas/PolicyRuleStatus'
+        expression:
+          type: string
+          description: Rule expression or category seal descriptor.
+        targetListingId:
+          type: string
+        agentAccountId:
+          type: string
+        spendCapAmount:
+          type: number
+        spendCapCurrency:
+          type: string
+        spendUsedAmount:
+          type: number
+        dualUseQueue:
+          type: boolean
+          description: True when this rule places a listing in the dual-use review queue.
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PolicyRuleCreateRequest:
+      type: object
+      required:
+        - ruleType
+        - expression
+      properties:
+        ruleType:
+          $ref: '#/components/schemas/PolicyRuleType'
+        status:
+          $ref: '#/components/schemas/PolicyRuleStatus'
+        expression:
+          type: string
+        targetListingId:
+          type: string
+        agentAccountId:
+          type: string
+        spendCapAmount:
+          type: number
+        spendCapCurrency:
+          type: string
+        dualUseQueue:
+          type: boolean
+
+    PolicyRuleListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyRule'
+        nextCursor:
+          type: string
+
+    PolicyRuleResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PolicyRule'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    PolicyRuleListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PolicyRuleListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

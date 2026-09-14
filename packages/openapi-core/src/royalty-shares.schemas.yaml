@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: Royalty Shares schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    ShareId:
+      type: string
+      pattern: '^ryl_[0-9A-HJKMNP-TV-Z]{26}$'
+
+    RoyaltyRole:
+      type: string
+      enum: [data, kernel, compute, marketplace]
+
+    RoyaltyShareStatus:
+      type: string
+      enum: [pending, paid, clawedBack]
+
+    RoyaltyShare:
+      type: object
+      required:
+        - shareId
+        - jobId
+        - payeeParticipantId
+        - role
+        - shareBps
+        - amount
+        - currency
+        - status
+        - createdAt
+      properties:
+        shareId:
+          $ref: '#/components/schemas/ShareId'
+        jobId:
+          type: string
+        payeeParticipantId:
+          type: string
+        role:
+          $ref: '#/components/schemas/RoyaltyRole'
+        shareBps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/RoyaltyShareStatus'
+        periodKey:
+          type: string
+          description: Statement period key (e.g. 2026-09).
+        createdAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+
+    RoyaltyShareCreateRequest:
+      type: object
+      required:
+        - jobId
+        - payeeParticipantId
+        - role
+        - shareBps
+        - amount
+        - currency
+      properties:
+        jobId:
+          type: string
+        payeeParticipantId:
+          type: string
+        role:
+          $ref: '#/components/schemas/RoyaltyRole'
+        shareBps:
+          type: integer
+        amount:
+          type: number
+        currency:
+          type: string
+        periodKey:
+          type: string
+        status:
+          $ref: '#/components/schemas/RoyaltyShareStatus'
+
+    RoyaltyShareListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoyaltyShare'
+        nextCursor:
+          type: string
+        periodKey:
+          type: string
+        totalAmount:
+          type: number
+
+    RoyaltyShareResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/RoyaltyShare'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    RoyaltyShareListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/RoyaltyShareListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

@@ -1,0 +1,157 @@
+openapi: 3.1.0
+info:
+  title: Grant Pools schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    PoolId:
+      type: string
+      pattern: '^grp_[0-9A-HJKMNP-TV-Z]{26}$'
+
+    GrantPoolStatus:
+      type: string
+      enum: [open, disbursing, closed]
+
+    DisbursementStatus:
+      type: string
+      enum: [declared, approved, paid, rejected]
+
+    GrantPool:
+      type: object
+      required:
+        - poolId
+        - name
+        - metric
+        - budgetAmount
+        - currency
+        - status
+        - createdAt
+      properties:
+        poolId:
+          $ref: '#/components/schemas/PoolId'
+        name:
+          type: string
+        metric:
+          type: string
+          description: Declared PoR metric definition.
+        budgetAmount:
+          type: number
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/GrantPoolStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    GrantPoolCreateRequest:
+      type: object
+      required:
+        - name
+        - metric
+        - budgetAmount
+        - currency
+      properties:
+        name:
+          type: string
+        metric:
+          type: string
+        budgetAmount:
+          type: number
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/GrantPoolStatus'
+
+    MetricDeclaration:
+      type: object
+      required:
+        - declarationId
+        - poolId
+        - claimantParticipantId
+        - metricValue
+        - status
+        - declaredAt
+      properties:
+        declarationId:
+          type: string
+        poolId:
+          $ref: '#/components/schemas/PoolId'
+        claimantParticipantId:
+          type: string
+        metricValue:
+          type: number
+        evidence:
+          type: string
+        status:
+          $ref: '#/components/schemas/DisbursementStatus'
+        declaredAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+
+    DeclareMetricRequest:
+      type: object
+      required:
+        - claimantParticipantId
+        - metricValue
+      properties:
+        claimantParticipantId:
+          type: string
+        metricValue:
+          type: number
+        evidence:
+          type: string
+
+    ApproveDisbursementRequest:
+      type: object
+      required: [declarationId]
+      properties:
+        declarationId:
+          type: string
+        note:
+          type: string
+
+    GrantPoolListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GrantPool'
+        nextCursor:
+          type: string
+
+    GrantPoolResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/GrantPool'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    GrantPoolListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/GrantPoolListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    MetricDeclarationResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/MetricDeclaration'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

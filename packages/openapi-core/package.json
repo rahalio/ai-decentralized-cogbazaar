@@ -1,0 +1,18 @@
+{
+  "name": "@cogbazaar/openapi-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAPI contracts for the DDD codegen starter (common + identity sample)",
+  "scripts": {
+    "lint:domains": "redocly lint",
+    "bundle:domains": "mkdir -p src/.bundled && redocly bundle identity --output src/.bundled/identity.openapi.yaml && redocly bundle identity --output src/.bundled/identity.json && redocly bundle listings --output src/.bundled/listings.openapi.yaml && redocly bundle listings --output src/.bundled/listings.json && redocly bundle jobs --output src/.bundled/jobs.openapi.yaml && redocly bundle jobs --output src/.bundled/jobs.json && redocly bundle pocw-attestations --output src/.bundled/pocw-attestations.openapi.yaml && redocly bundle pocw-attestations --output src/.bundled/pocw-attestations.json && redocly bundle royalty-shares --output src/.bundled/royalty-shares.openapi.yaml && redocly bundle royalty-shares --output src/.bundled/royalty-shares.json && redocly bundle grant-pools --output src/.bundled/grant-pools.openapi.yaml && redocly bundle grant-pools --output src/.bundled/grant-pools.json && redocly bundle policy-rules --output src/.bundled/policy-rules.openapi.yaml && redocly bundle policy-rules --output src/.bundled/policy-rules.json",
+    "lint": "pnpm run lint:domains",
+    "bundle": "pnpm run bundle:domains"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.34.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

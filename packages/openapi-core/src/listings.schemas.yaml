@@ -1,0 +1,165 @@
+openapi: 3.1.0
+info:
+  title: Listings schemas
+  version: 0.1.0
+  description: Dataset, kernel, and compute commodity listings.
+paths: {}
+components:
+  schemas:
+    ListingId:
+      type: string
+      pattern: '^lst_[0-9A-HJKMNP-TV-Z]{26}$'
+      description: Prefixed listing id.
+
+    ListingType:
+      type: string
+      enum: [dataset, kernel, compute]
+
+    LicenceClass:
+      type: string
+      enum: [research, commercial, restricted]
+
+    ListingStatus:
+      type: string
+      enum: [active, suspended, retired]
+
+    Listing:
+      type: object
+      required:
+        - listingId
+        - listingType
+        - sellerParticipantId
+        - priceAmount
+        - currency
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        listingId:
+          $ref: '#/components/schemas/ListingId'
+        listingType:
+          $ref: '#/components/schemas/ListingType'
+        sellerParticipantId:
+          type: string
+        title:
+          type: string
+        priceAmount:
+          type: number
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/ListingStatus'
+        licenceClass:
+          $ref: '#/components/schemas/LicenceClass'
+        dualUseFlag:
+          type: boolean
+          description: When true, listing is sealed pending compliance review.
+        computeToDataEligible:
+          type: boolean
+          description: Dataset may be used without export (compute-to-data).
+        supportedPocwFormats:
+          type: array
+          items:
+            type: string
+          description: PoCW proof formats accepted for settlement (compute/kernel).
+        takeRateBps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: Marketplace take-rate in basis points (disclosed).
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ListingCreateRequest:
+      type: object
+      required:
+        - listingType
+        - sellerParticipantId
+        - priceAmount
+        - currency
+      properties:
+        listingType:
+          $ref: '#/components/schemas/ListingType'
+        sellerParticipantId:
+          type: string
+        title:
+          type: string
+        priceAmount:
+          type: number
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/ListingStatus'
+        licenceClass:
+          $ref: '#/components/schemas/LicenceClass'
+        dualUseFlag:
+          type: boolean
+        computeToDataEligible:
+          type: boolean
+        supportedPocwFormats:
+          type: array
+          items:
+            type: string
+        takeRateBps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+
+    ListingUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        priceAmount:
+          type: number
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/ListingStatus'
+        licenceClass:
+          $ref: '#/components/schemas/LicenceClass'
+        dualUseFlag:
+          type: boolean
+        computeToDataEligible:
+          type: boolean
+        supportedPocwFormats:
+          type: array
+          items:
+            type: string
+        takeRateBps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+
+    ListingListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Listing'
+        nextCursor:
+          type: string
+
+    ListingResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Listing'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    ListingListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ListingListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

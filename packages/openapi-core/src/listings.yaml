@@ -1,0 +1,165 @@
+openapi: 3.1.0
+info:
+  title: Listings API
+  version: 0.1.0
+  description: |
+    Commodity catalogue — datasets, AI kernels, and GPU compute offers.
+  license:
+    name: Proprietary
+    url: https://cogbazaar.local/license
+  x-domain: lst
+servers:
+  - url: https://api.cogbazaar.local
+    description: Local / product API
+security:
+  - apiKey: []
+tags:
+  - name: Listings
+    description: Data, kernel, and compute offers
+paths:
+  /v1/listings:
+    get:
+      operationId: listListings
+      tags: [Listings]
+      summary: List listings
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: listingType
+          in: query
+          schema:
+            $ref: ./listings.schemas.yaml#/components/schemas/ListingType
+        - name: licenceClass
+          in: query
+          schema:
+            $ref: ./listings.schemas.yaml#/components/schemas/LicenceClass
+        - name: dualUseFlag
+          in: query
+          schema:
+            type: boolean
+        - name: status
+          in: query
+          schema:
+            $ref: ./listings.schemas.yaml#/components/schemas/ListingStatus
+      responses:
+        '200':
+          description: Listings page
+          content:
+            application/json:
+              schema:
+                $ref: ./listings.schemas.yaml#/components/schemas/ListingListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createListing
+      tags: [Listings]
+      summary: Create listing
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./listings.schemas.yaml#/components/schemas/ListingCreateRequest
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./listings.schemas.yaml#/components/schemas/ListingResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/listings/{listingId}:
+    parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          $ref: ./listings.schemas.yaml#/components/schemas/ListingId
+    get:
+      operationId: getListing
+      tags: [Listings]
+      summary: Get listing
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: ./listings.schemas.yaml#/components/schemas/ListingResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    patch:
+      operationId: updateListing
+      tags: [Listings]
+      summary: Update listing
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./listings.schemas.yaml#/components/schemas/ListingUpdateRequest
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: ./listings.schemas.yaml#/components/schemas/ListingResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/listings/{listingId}/suspend:
+    parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          $ref: ./listings.schemas.yaml#/components/schemas/ListingId
+    post:
+      operationId: suspendListing
+      tags: [Listings]
+      summary: Suspend listing (dual-use or operator action)
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      responses:
+        '200':
+          description: Suspended
+          content:
+            application/json:
+              schema:
+                $ref: ./listings.schemas.yaml#/components/schemas/ListingResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

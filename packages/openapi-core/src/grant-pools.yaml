@@ -1,0 +1,167 @@
+openapi: 3.1.0
+info:
+  title: Grant Pools API
+  version: 0.1.0
+  description: Proof-of-research grant pools, metric declarations, and disbursements.
+  license:
+    name: Proprietary
+    url: https://cogbazaar.local/license
+  x-domain: grp
+servers:
+  - url: https://api.cogbazaar.local
+security:
+  - apiKey: []
+tags:
+  - name: GrantPools
+    description: Proof-of-research grant pools
+paths:
+  /v1/grant-pools:
+    get:
+      operationId: listGrantPools
+      tags: [GrantPools]
+      summary: List grant pools
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: status
+          in: query
+          schema:
+            $ref: ./grant-pools.schemas.yaml#/components/schemas/GrantPoolStatus
+      responses:
+        '200':
+          description: Pools page
+          content:
+            application/json:
+              schema:
+                $ref: ./grant-pools.schemas.yaml#/components/schemas/GrantPoolListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createGrantPool
+      tags: [GrantPools]
+      summary: Create grant pool
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./grant-pools.schemas.yaml#/components/schemas/GrantPoolCreateRequest
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./grant-pools.schemas.yaml#/components/schemas/GrantPoolResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/grant-pools/{poolId}:
+    parameters:
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          $ref: ./grant-pools.schemas.yaml#/components/schemas/PoolId
+    get:
+      operationId: getGrantPool
+      tags: [GrantPools]
+      summary: Get grant pool
+      responses:
+        '200':
+          description: Pool
+          content:
+            application/json:
+              schema:
+                $ref: ./grant-pools.schemas.yaml#/components/schemas/GrantPoolResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/grant-pools/{poolId}/declare-metric:
+    parameters:
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          $ref: ./grant-pools.schemas.yaml#/components/schemas/PoolId
+    post:
+      operationId: declareGrantPoolMetric
+      tags: [GrantPools]
+      summary: Declare PoR metric for disbursement review
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./grant-pools.schemas.yaml#/components/schemas/DeclareMetricRequest
+      responses:
+        '201':
+          description: Declared
+          content:
+            application/json:
+              schema:
+                $ref: ./grant-pools.schemas.yaml#/components/schemas/MetricDeclarationResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/grant-pools/{poolId}/approve-disbursement:
+    parameters:
+      - name: poolId
+        in: path
+        required: true
+        schema:
+          $ref: ./grant-pools.schemas.yaml#/components/schemas/PoolId
+    post:
+      operationId: approveGrantPoolDisbursement
+      tags: [GrantPools]
+      summary: Approve disbursement against declared metric
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./grant-pools.schemas.yaml#/components/schemas/ApproveDisbursementRequest
+      responses:
+        '200':
+          description: Approved
+          content:
+            application/json:
+              schema:
+                $ref: ./grant-pools.schemas.yaml#/components/schemas/MetricDeclarationResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

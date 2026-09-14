@@ -1,0 +1,191 @@
+openapi: 3.1.0
+info:
+  title: Jobs schemas
+  version: 0.1.0
+  description: Cognitive job composition, matching, and lifecycle.
+paths: {}
+components:
+  schemas:
+    JobId:
+      type: string
+      pattern: '^job_[0-9A-HJKMNP-TV-Z]{26}$'
+
+    JobStatus:
+      type: string
+      enum: [draft, matching, matched, running, pocwPending, settled, disputed, refunded, cancelled]
+
+    ProviderBid:
+      type: object
+      required: [providerParticipantId, computeListingId, bidAmount, currency]
+      properties:
+        providerParticipantId:
+          type: string
+        computeListingId:
+          type: string
+        bidAmount:
+          type: number
+        currency:
+          type: string
+        estimatedStartLatencySec:
+          type: integer
+        supportedPocwFormats:
+          type: array
+          items:
+            type: string
+        rationale:
+          type: string
+
+    Job:
+      type: object
+      required:
+        - jobId
+        - buyerParticipantId
+        - status
+        - budgetAmount
+        - currency
+        - createdAt
+        - updatedAt
+      properties:
+        jobId:
+          $ref: '#/components/schemas/JobId'
+        buyerParticipantId:
+          type: string
+        agentBuyer:
+          type: boolean
+          description: True when an agent purchases under a human account.
+        datasetListingId:
+          type: string
+        kernelListingId:
+          type: string
+        computeListingId:
+          type: string
+        computeToData:
+          type: boolean
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        budgetAmount:
+          type: number
+        currency:
+          type: string
+        takeRateBps:
+          type: integer
+        containerSpec:
+          type: string
+          description: Job container / pipeline spec blob or ref.
+        bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderBid'
+        selectedProviderParticipantId:
+          type: string
+        disputeReason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    JobCreateRequest:
+      type: object
+      required:
+        - buyerParticipantId
+        - budgetAmount
+        - currency
+      properties:
+        buyerParticipantId:
+          type: string
+        agentBuyer:
+          type: boolean
+        datasetListingId:
+          type: string
+        kernelListingId:
+          type: string
+        computeListingId:
+          type: string
+        computeToData:
+          type: boolean
+        budgetAmount:
+          type: number
+        currency:
+          type: string
+        takeRateBps:
+          type: integer
+        containerSpec:
+          type: string
+
+    JobUpdateRequest:
+      type: object
+      properties:
+        datasetListingId:
+          type: string
+        kernelListingId:
+          type: string
+        computeListingId:
+          type: string
+        computeToData:
+          type: boolean
+        budgetAmount:
+          type: number
+        currency:
+          type: string
+        takeRateBps:
+          type: integer
+        containerSpec:
+          type: string
+        agentBuyer:
+          type: boolean
+
+    MatchJobRequest:
+      type: object
+      properties:
+        widenSpec:
+          type: boolean
+          description: Allow broader provider matching when no bids.
+
+    AcceptRouteRequest:
+      type: object
+      required: [providerParticipantId]
+      properties:
+        providerParticipantId:
+          type: string
+        computeListingId:
+          type: string
+
+    DisputeJobRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 1
+
+    JobListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+        nextCursor:
+          type: string
+
+    JobResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Job'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    JobListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/JobListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

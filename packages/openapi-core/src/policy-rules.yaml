@@ -1,0 +1,104 @@
+openapi: 3.1.0
+info:
+  title: Policy Rules API
+  version: 0.1.0
+  description: Dual-use blocks, agent spend caps, and licence gates.
+  license:
+    name: Proprietary
+    url: https://cogbazaar.local/license
+  x-domain: pol
+servers:
+  - url: https://api.cogbazaar.local
+security:
+  - apiKey: []
+tags:
+  - name: PolicyRules
+    description: Dual-use and agent spend gates
+paths:
+  /v1/policy-rules:
+    get:
+      operationId: listPolicyRules
+      tags: [PolicyRules]
+      summary: List policy rules
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: ruleType
+          in: query
+          schema:
+            $ref: ./policy-rules.schemas.yaml#/components/schemas/PolicyRuleType
+        - name: status
+          in: query
+          schema:
+            $ref: ./policy-rules.schemas.yaml#/components/schemas/PolicyRuleStatus
+        - name: dualUseQueue
+          in: query
+          description: When true, return dual-use review queue entries
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Rules page
+          content:
+            application/json:
+              schema:
+                $ref: ./policy-rules.schemas.yaml#/components/schemas/PolicyRuleListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createPolicyRule
+      tags: [PolicyRules]
+      summary: Create policy rule
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./policy-rules.schemas.yaml#/components/schemas/PolicyRuleCreateRequest
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ./policy-rules.schemas.yaml#/components/schemas/PolicyRuleResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/policy-rules/{ruleId}:
+    parameters:
+      - name: ruleId
+        in: path
+        required: true
+        schema:
+          $ref: ./policy-rules.schemas.yaml#/components/schemas/RuleId
+    get:
+      operationId: getPolicyRule
+      tags: [PolicyRules]
+      summary: Get policy rule
+      responses:
+        '200':
+          description: Rule
+          content:
+            application/json:
+              schema:
+                $ref: ./policy-rules.schemas.yaml#/components/schemas/PolicyRuleResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey
